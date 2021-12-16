@@ -9,35 +9,46 @@
 #include "temp_pack.pb.h"
 
 // d:\_works\proto\nanopb\generator-bin\nanopb_generator.exe temp_pack.proto
-#define BLINK_GPIO 4
+#define RED_LED 		4
+#define GREEN_LED 	5
+
 bool test_nanopb();
+void heart_task(void *p);
+void green_task(void *p);
 //=================================================================
 
 void app_main()
 {
-	bool result;
+	test_nanopb();
+	xTaskCreate(heart_task, "heart", 1024*8, NULL, 5, NULL);
+	xTaskCreate(green_task, "green", 1024*8, NULL, 5, NULL);
+}
 
-	gpio_pad_select_gpio(BLINK_GPIO);
-	gpio_set_direction(BLINK_GPIO, GPIO_MODE_OUTPUT);
-	result = test_nanopb();
-
+void heart_task(void *p)
+{
+	gpio_pad_select_gpio(RED_LED);
+	gpio_set_direction(RED_LED, GPIO_MODE_OUTPUT);
 	while (1)
 	{
-		if (result)
-		{
-			gpio_set_level(BLINK_GPIO, 1);
-			vTaskDelay(100 / portTICK_PERIOD_MS);
-			gpio_set_level(BLINK_GPIO, 0);
-			vTaskDelay(1900 / portTICK_PERIOD_MS);
-		}
-		else
-		{
-			gpio_set_level(BLINK_GPIO, 1);
-			vTaskDelay(1000 / portTICK_PERIOD_MS);
-			gpio_set_level(BLINK_GPIO, 0);
-			vTaskDelay(1000 / portTICK_PERIOD_MS);
-			printf("Error proto\r\n");
-		}
+		gpio_set_level(RED_LED, 1);
+		vTaskDelay(100 / portTICK_PERIOD_MS);
+		gpio_set_level(RED_LED, 0);
+		vTaskDelay(1900 / portTICK_PERIOD_MS);
+		printf("red led\r\n");
+	}
+}
+
+void green_task(void *p)
+{
+	gpio_pad_select_gpio(GREEN_LED);
+	gpio_set_direction(GREEN_LED, GPIO_MODE_OUTPUT);
+	while (1)
+	{
+		gpio_set_level(GREEN_LED, 1);
+		vTaskDelay(100 / portTICK_PERIOD_MS);
+		gpio_set_level(GREEN_LED, 0);
+		vTaskDelay(3000 / portTICK_PERIOD_MS);
+		printf("green led\r\n");
 	}
 }
 
